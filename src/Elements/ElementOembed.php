@@ -38,6 +38,15 @@ class ElementOembed extends BaseElement
     ];
 
     /**
+     * Set to false to prevent an in-line edit form from showing in an elemental area. Instead the element will be
+     * clickable and a GridFieldDetailForm will be used.
+     *
+     * @config
+     * @var bool
+     */
+    private static $inline_editable = false;
+
+    /**
      * @return FieldList
      */
     public function getCMSFields()
@@ -55,13 +64,23 @@ class ElementOembed extends BaseElement
     /**
      * @return DBHTMLText
      */
-    public function ElementSummary()
+    public function getSummary()
     {
         if ($this->EmbeddedObject()->ID) {
-            return DBField::create_field('HTMLText', $this->EmbeddedObject->Description)->Summary(20);
+            return DBField::create_field('HTMLText', $this->EmbeddedObject->Title)->Summary(20);
         }
 
         return DBField::create_field('HTMLText', '<p>External Content</p>')->Summary(20);
+    }
+
+    /**
+     * @return array
+     */
+    protected function provideBlockSchema()
+    {
+        $blockSchema = parent::provideBlockSchema();
+        $blockSchema['content'] = $this->getSummary();
+        return $blockSchema;
     }
 
     /**
