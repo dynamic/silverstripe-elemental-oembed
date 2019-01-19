@@ -13,7 +13,7 @@ class ElementOembed extends BaseElement
     /**
      * @var string
      */
-    private static $icon = 'embed-icon';
+    private static $icon = 'font-icon-block-media';
 
     /**
      * @return string
