@@ -3,8 +3,8 @@
 namespace Dynamic\Elements\Oembed\Elements;
 
 use DNADesign\Elemental\Models\BaseElement;
-use Sheadawson\Linkable\Forms\EmbeddedObjectField;
-use Sheadawson\Linkable\Models\EmbeddedObject;
+use gorriecoe\Embed\Models\Embed;
+use SilverShop\HasOneField\HasOneButtonField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\FieldType\DBField;
 
@@ -24,7 +24,7 @@ class ElementOembed extends BaseElement
      * @var array
      */
     private static $has_one = [
-        'EmbeddedObject' => EmbeddedObject::class,
+        'EmbeddedObject' => Embed::class,
     ];
 
     /**
@@ -36,6 +36,10 @@ class ElementOembed extends BaseElement
      */
     private static $inline_editable = false;
 
+    /**
+     * @param $includerelations
+     * @return array
+     */
     public function fieldLabels($includerelations = true)
     {
         $labels = parent::fieldLabels($includerelations);
@@ -53,7 +57,7 @@ class ElementOembed extends BaseElement
 
         $fields->replaceField(
             'EmbeddedObjectID',
-            EmbeddedObjectField::create('EmbeddedObject', $this->fieldLabel('EmbeddedObject'), $this->EmbeddedObject())
+            HasOneButtonField::create($this, 'EmbeddedObject', $this->fieldLabel('EmbeddedObject'))
         );
 
         return $fields;
