@@ -3,6 +3,7 @@
 namespace Dynamic\Elements\Oembed\Elements;
 
 use DNADesign\Elemental\Models\BaseElement;
+use gorriecoe\Embed\Extensions\Embeddable;
 use Sheadawson\Linkable\Forms\EmbeddedObjectField;
 use Sheadawson\Linkable\Models\EmbeddedObject;
 use SilverStripe\Forms\FieldList;
@@ -13,26 +14,37 @@ class ElementOembed extends BaseElement
     /**
      * @var string
      */
+    /**
+     * @var string
+     */
     private static $icon = 'font-icon-block-media';
 
+    /**
+     * @var string
+     */
     /**
      * @var string
      */
     private static $table_name = 'ElementOembed';
 
     /**
-     * @var array
+     * @var string[]
      */
-    private static $has_one = [
-        'EmbeddedObject' => EmbeddedObject::class,
+    private static $extensions = [
+        Embeddable::class,
     ];
 
     /**
      * @var string[]
      */
-    private static $cascade_duplicates = [
-        'EmbeddedObject',
+    private static $allowed_embed_types = [
+        'video',
     ];
+
+    /**
+     * @var string
+     */
+    private static $embed_tab = 'Main';
 
     /**
      * Set to false to prevent an in-line edit form from showing in an elemental area. Instead the element will be
@@ -43,10 +55,14 @@ class ElementOembed extends BaseElement
      */
     private static $inline_editable = false;
 
+    /**
+     * @param $includerelations
+     * @return array
+     */
     public function fieldLabels($includerelations = true)
     {
         $labels = parent::fieldLabels($includerelations);
-        $labels['EmbeddedObject'] = _t(__CLASS__ . '.EmbeddedObjectLabel', 'Content from oEmbed URL');
+        //$labels['EmbeddedObject'] = _t(__CLASS__ . '.EmbeddedObjectLabel', 'Content from oEmbed URL');
 
         return $labels;
     }
@@ -54,7 +70,7 @@ class ElementOembed extends BaseElement
     /**
      * @return FieldList
      */
-    public function getCMSFields()
+    /*public function getCMSFields()
     {
         $fields = parent::getCMSFields();
 
@@ -64,16 +80,16 @@ class ElementOembed extends BaseElement
         );
 
         return $fields;
-    }
+    }//*/
 
     /**
      * @return DBHTMLText
      */
     public function getSummary()
     {
-        if ($this->EmbeddedObject()->ID) {
+        /*if ($this->EmbeddedObject()->ID) {
             return DBField::create_field('HTMLText', $this->EmbeddedObject->Title)->Summary(20);
-        }
+        }//*/
 
         return DBField::create_field('HTMLText', '<p>External Content</p>')->Summary(20);
     }
@@ -93,6 +109,6 @@ class ElementOembed extends BaseElement
      */
     public function getType()
     {
-        return _t(__CLASS__.'.BlockType', 'Media');
+        return _t(__CLASS__ . '.BlockType', 'Media');
     }
 }
