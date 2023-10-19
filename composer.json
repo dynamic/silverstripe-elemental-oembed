@@ -14,11 +14,19 @@
     "type": "silverstripe-vendormodule",
     "license": "BSD-3-Clause",
     "require": {
-        "dnadesign/silverstripe-elemental": "^5.0"
+        "dnadesign/silverstripe-elemental": "^5.0",
+        "dnadesign/silverstripe-embed": "dev-master",
+        "gorriecoe/silverstripe-htmltag": "dev-master as 1.1.0"
     },
     "require-dev": {
         "silverstripe/recipe-testing": "^3"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "git@github.com:dnadesign/silverstripe-htmltag.git"
+        }
+    ],
     "config": {
         "allow-plugins": {
             "composer/installers": true,
