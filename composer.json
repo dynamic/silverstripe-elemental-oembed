@@ -16,7 +16,7 @@
     "require": {
         "dnadesign/silverstripe-elemental": "^5.0",
         "dnadesign/silverstripe-embed": "dev-master",
-        "gorriecoe/silverstripe-htmltag": "dev-master as 1.1.0"
+        "gorriecoe/silverstripe-htmltag": "dev-bugfix/htmlTagDepreciation as 1.1.0"
     },
     "require-dev": {
         "silverstripe/recipe-testing": "^3"
@@ -24,7 +24,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@github.com:dnadesign/silverstripe-htmltag.git"
+            "url": "git@github.com:jsirish/silverstripe-htmltag.git"
         }
     ],
     "config": {
