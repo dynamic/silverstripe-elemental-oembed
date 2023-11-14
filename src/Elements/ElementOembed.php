@@ -119,8 +119,7 @@ class ElementOembed extends BaseElement
             if ($iframe) {
                 // Extract the src attribute value
                 $src = $iframe->getAttribute('src');
-                $src = explode('?', $src);
-                return $src[0];
+                return $src;
             } else {
                 return null;
             }
