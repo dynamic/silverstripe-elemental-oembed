@@ -69,7 +69,7 @@ class ElementOembed extends BaseElement
      */
     public function getSummary()
     {
-        if ($this->EmbedSourceURL) {
+        if ($this->EmbedTitle) {
             return DBField::create_field('HTMLText', $this->dbObject('EmbedTitle'))->Summary(20);
         }
 
