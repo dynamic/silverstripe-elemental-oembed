@@ -2,18 +2,15 @@
 
 namespace Dynamic\Elements\Oembed\Elements;
 
-use DNADesign\Elemental\Models\BaseElement;
-use gorriecoe\Embed\Extensions\Embeddable;
-use Sheadawson\Linkable\Forms\EmbeddedObjectField;
-use Sheadawson\Linkable\Models\EmbeddedObject;
+use DOMXPath;
+use DOMDocument;
 use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\RequiredFields;
 use SilverStripe\ORM\FieldType\DBField;
+use DNADesign\Elemental\Models\BaseElement;
 
 class ElementOembed extends BaseElement
 {
-    /**
-     * @var string
-     */
     /**
      * @var string
      */
@@ -22,36 +19,10 @@ class ElementOembed extends BaseElement
     /**
      * @var string
      */
-    /**
-     * @var string
-     */
     private static $table_name = 'ElementOembed';
 
     /**
-     * @var string[]
-     */
-    private static $extensions = [
-        Embeddable::class,
-    ];
-
-    /**
-     * @var string[]
-     */
-    private static $allowed_embed_types = [
-        'video',
-    ];
-
-    /**
-     * @var string
-     */
-    private static $embed_tab = 'Main';
-
-    /**
-     * Set to false to prevent an in-line edit form from showing in an elemental area. Instead the element will be
-     * clickable and a GridFieldDetailForm will be used.
-     *
-     * @config
-     * @var bool
+     * @var array
      */
     private static $inline_editable = false;
 
@@ -70,26 +41,37 @@ class ElementOembed extends BaseElement
     /**
      * @return FieldList
      */
-    /*public function getCMSFields()
+    public function getCMSFields()
     {
         $fields = parent::getCMSFields();
 
-        $fields->replaceField(
-            'EmbeddedObjectID',
-            EmbeddedObjectField::create('EmbeddedObject', $this->fieldLabel('EmbeddedObject'), $this->EmbeddedObject())
-        );
+        $fields->removeByName([
+            'EmbedImage',
+        ]);
 
         return $fields;
-    }//*/
+    }
+
+    /**
+     * disable EmbedSourceImageURL field from Embeddable extension
+     *
+     * @return void
+     */
+    public function getCMSValidator()
+    {
+        return RequiredFields::create(
+            'EmbedSourceURL',
+        );
+    }
 
     /**
      * @return DBHTMLText
      */
     public function getSummary()
     {
-        /*if ($this->EmbeddedObject()->ID) {
-            return DBField::create_field('HTMLText', $this->EmbeddedObject->Title)->Summary(20);
-        }//*/
+        if ($this->EmbedSourceURL) {
+            return DBField::create_field('HTMLText', $this->dbObject('EmbedTitle'))->Summary(20);
+        }
 
         return DBField::create_field('HTMLText', '<p>External Content</p>')->Summary(20);
     }
@@ -110,5 +92,38 @@ class ElementOembed extends BaseElement
     public function getType()
     {
         return _t(__CLASS__ . '.BlockType', 'Media');
+    }
+
+    /**
+     * isolate src from EmbedHTML for more control over iframe attributes
+     *
+     * @return void
+     */
+    public function getEmbedURL()
+    {
+        if ($this->EmbedHTML) {
+            $html = $this->EmbedHTML;
+
+            // Create a new DOM Document to hold our webpage structure
+            $doc = new DOMDocument();
+
+            // Load the HTML into the DOM Document
+            @$doc->loadHTML($html);
+
+            // Create a new XPath object
+            $xpath = new DOMXPath($doc);
+
+            // Query for the first iframe element
+            $iframe = $xpath->query("//iframe")->item(0);
+
+            if ($iframe) {
+                // Extract the src attribute value
+                $src = $iframe->getAttribute('src');
+                $src = explode('?', $src);
+                return $src[0];
+            } else {
+                return null;
+            }
+        }
     }
 }

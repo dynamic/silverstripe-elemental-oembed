@@ -1,3 +1,12 @@
 ---
 Name: silverstripeelemental-oembedconfig
 ---
+Dynamic\Elements\Oembed\Elements\ElementOembed:
+  extensions:
+    gorriecoe\Embed\Extensions\Embeddable
+  allowed_embed_types:
+    - 'video'
+    - 'rich'
+    - 'photo'
+    - 'link'
+  embed_tab: 'Main'
