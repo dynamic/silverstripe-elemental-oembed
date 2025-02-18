@@ -106,7 +106,7 @@ class ElementOembed extends BaseElement
             return DBField::create_field('HTMLText', $this->dbObject('Title'))->Summary(20);
         }
 
-        return DBField::create_field('HTMLText', '<p>Embeded Content</p>')->Summary(20);
+        return DBField::create_field('HTMLText', 'Embeded Content')->Summary(20);
     }
 
     /**
