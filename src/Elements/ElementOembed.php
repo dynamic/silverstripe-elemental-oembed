@@ -5,9 +5,10 @@ namespace Dynamic\Elements\Oembed\Elements;
 use DOMXPath;
 use DOMDocument;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\RequiredFields;
 use SilverStripe\ORM\FieldType\DBField;
+use nathancox\EmbedField\Forms\EmbedField;
 use DNADesign\Elemental\Models\BaseElement;
+use nathancox\EmbedField\Model\EmbedObject;
 
 class ElementOembed extends BaseElement
 {
@@ -25,7 +26,13 @@ class ElementOembed extends BaseElement
      * @return array
      */
     private static $db = [
+        'EmbedTitle' => 'Varchar(255)',
+        'EmbedDescription' => 'HTMLText',
+        'EmbedSourceURL' => 'Varchar(255)',
+    ];
 
+    private static $has_one = [
+        'EmbedVideo' => EmbedObject::class,
     ];
 
     /**
@@ -50,25 +57,44 @@ class ElementOembed extends BaseElement
      */
     public function getCMSFields()
     {
-        $fields = parent::getCMSFields();
+        $this->beforeUpdateCMSFields(function (FieldList $fields) {
 
-        $fields->removeByName([
-            'EmbedImage',
-        ]);
+            $fields->removeByName([
+                'EmbedVideoID',
+                'EmbedTitle',
+            ]);
 
-        return $fields;
+            $fields->dataFieldByName('EmbedDescription')->setTitle('Description');
+            $fields->dataFieldByName('EmbedSourceURL')->setTitle('Legacy Source URL');
+
+            // Embed video
+            $embedVideo = EmbedField::create('EmbedVideoID', 'Embed video');
+
+            $fields->addFieldToTab(
+                'Root.Main',
+                $embedVideo,
+                'EmbedDescription'
+            );
+        });
+
+        return parent::getCMSFields();
     }
 
     /**
-     * disable EmbedSourceImageURL field from Embeddable extension
-     *
-     * @return void
+     * @return string
      */
-    public function getCMSValidator()
+    public function onBeforeWrite()
     {
-        return RequiredFields::create(
-            'EmbedSourceURL',
-        );
+        parent::onBeforeWrite();
+
+        // if legacy EmbedSourceURL, create new EmbedObject
+        if (!$this->EmbedVideoID && $this->EmbedSourceURL) {
+            $embed = EmbedObject::create();
+            $embed->SourceURL = $this->EmbedSourceURL;
+            $embed->write();
+
+            $this->EmbedVideoID = $embed->ID;
+        }
     }
 
     /**
@@ -76,11 +102,11 @@ class ElementOembed extends BaseElement
      */
     public function getSummary()
     {
-        if ($this->EmbedTitle) {
-            return DBField::create_field('HTMLText', $this->dbObject('EmbedTitle'))->Summary(20);
+        if ($this->Title) {
+            return DBField::create_field('HTMLText', $this->dbObject('Title'))->Summary(20);
         }
 
-        return DBField::create_field('HTMLText', '<p>External Content</p>')->Summary(20);
+        return DBField::create_field('HTMLText', '<p>Embeded Content</p>')->Summary(20);
     }
 
     /**
