@@ -9,6 +9,7 @@ use SilverStripe\ORM\FieldType\DBField;
 use nathancox\EmbedField\Forms\EmbedField;
 use DNADesign\Elemental\Models\BaseElement;
 use nathancox\EmbedField\Model\EmbedObject;
+use SilverStripe\Core\Config\Config;
 
 class ElementOembed extends BaseElement
 {
@@ -21,6 +22,11 @@ class ElementOembed extends BaseElement
      * @var string
      */
     private static $table_name = 'ElementOembed';
+
+    /**
+     * @var bool
+     */
+    private static $enable_migration = false;
 
     /**
      * @return array
@@ -87,13 +93,15 @@ class ElementOembed extends BaseElement
     {
         parent::onBeforeWrite();
 
-        // if legacy EmbedSourceURL, create new EmbedObject
-        if (!$this->EmbedVideoID && $this->EmbedSourceURL) {
-            $embed = EmbedObject::create();
-            $embed->SourceURL = $this->EmbedSourceURL;
-            $embed->write();
+        if (Config::inst()->get(self::class, 'enable_migration')) {
+            // if legacy EmbedSourceURL, create new EmbedObject
+            if (!$this->EmbedVideoID && $this->EmbedSourceURL) {
+                $embed = EmbedObject::create();
+                $embed->SourceURL = $this->EmbedSourceURL;
+                $embed->write();
 
-            $this->EmbedVideoID = $embed->ID;
+                $this->EmbedVideoID = $embed->ID;
+            }
         }
     }
 
