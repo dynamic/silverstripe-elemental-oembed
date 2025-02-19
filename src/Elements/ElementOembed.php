@@ -81,17 +81,11 @@ class ElementOembed extends BaseElement
 
             if (Config::inst()->get(self::class, 'enable_migration')) {
                 $legacy_title = $fields->dataFieldByName('EmbedTitle')
-                    ->setTitle('Legacy Title')
-                    //->performReadonlyTransformation()
-                    ;
+                    ->setTitle('Legacy Title');
                 $legacy_source = $fields->dataFieldByName('EmbedSourceURL')
-                    ->setTitle('Legacy Source URL')
-                    //->performReadonlyTransformation()
-                    ;
+                    ->setTitle('Legacy Source URL');
                 $legacy_description = $fields->dataFieldByName('EmbedDescription')
-                    ->setTitle('Legacy Description')
-                    //->performReadonlyTransformation()
-                    ;
+                    ->setTitle('Legacy Description');
 
                 $fields->insertAfter(
                     'Content',
