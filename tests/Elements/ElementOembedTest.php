@@ -30,7 +30,7 @@ class ElementOembedTest extends SapphireTest
     public function testGetSummary()
     {
         $object = $this->objFromFixture(ElementOembed::class, 'one');
-        $expected = DBField::create_field('HTMLText', '<p>External Content</p>')->Summary(20);
+        $expected = DBField::create_field('HTMLText', 'oEmbed Element')->Summary(20);
         $this->assertEquals($object->getSummary(), $expected);
     }
 

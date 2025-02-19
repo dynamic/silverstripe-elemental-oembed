@@ -5,9 +5,11 @@ namespace Dynamic\Elements\Oembed\Elements;
 use DOMXPath;
 use DOMDocument;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\RequiredFields;
 use SilverStripe\ORM\FieldType\DBField;
+use nathancox\EmbedField\Forms\EmbedField;
 use DNADesign\Elemental\Models\BaseElement;
+use nathancox\EmbedField\Model\EmbedObject;
+use SilverStripe\Core\Config\Config;
 
 class ElementOembed extends BaseElement
 {
@@ -22,10 +24,22 @@ class ElementOembed extends BaseElement
     private static $table_name = 'ElementOembed';
 
     /**
+     * @var bool
+     */
+    private static $enable_migration = false;
+
+    /**
      * @return array
      */
     private static $db = [
+        'Content' => 'HTMLText',
+        'EmbedTitle' => 'Varchar(255)',
+        'EmbedDescription' => 'HTMLText',
+        'EmbedSourceURL' => 'Varchar(255)',
+    ];
 
+    private static $has_one = [
+        'EmbedVideo' => EmbedObject::class,
     ];
 
     /**
@@ -50,25 +64,81 @@ class ElementOembed extends BaseElement
      */
     public function getCMSFields()
     {
-        $fields = parent::getCMSFields();
+        $this->beforeUpdateCMSFields(function (FieldList $fields) {
 
-        $fields->removeByName([
-            'EmbedImage',
-        ]);
+            $fields->removeByName([
+                'EmbedVideoID',
+            ]);
+            
+            // Embed video
+            $embedVideo = EmbedField::create('EmbedVideoID', 'Embed video');
 
-        return $fields;
+            $fields->addFieldToTab(
+                'Root.Main',
+                $embedVideo,
+                'Content'
+            );
+
+            if (Config::inst()->get(self::class, 'enable_migration')) {
+                $legacy_title = $fields->dataFieldByName('EmbedTitle')
+                    ->setTitle('Legacy Title');
+                $legacy_source = $fields->dataFieldByName('EmbedSourceURL')
+                    ->setTitle('Legacy Source URL');
+                $legacy_description = $fields->dataFieldByName('EmbedDescription')
+                    ->setTitle('Legacy Description');
+
+                $fields->insertAfter(
+                    'Content',
+                    $legacy_description
+                );
+            
+                $fields->insertAfter(
+                    'Content',
+                    $legacy_source
+                );
+
+                $fields->insertAfter(
+                    'Content',
+                    $legacy_title
+                );
+            } else {
+                $fields->removeByName([
+                    'EmbedTitle',
+                    'EmbedDescription',
+                    'EmbedSourceURL',
+                ]);
+            }
+        });
+
+        return parent::getCMSFields();
     }
 
     /**
-     * disable EmbedSourceImageURL field from Embeddable extension
-     *
-     * @return void
+     * @return string
      */
-    public function getCMSValidator()
+    public function onBeforeWrite()
     {
-        return RequiredFields::create(
-            'EmbedSourceURL',
-        );
+        parent::onBeforeWrite();
+
+        if (Config::inst()->get(self::class, 'enable_migration')) {
+            // if legacy EmbedSourceURL, create new EmbedObject
+            if (!$this->EmbedVideoID && $this->EmbedSourceURL) {
+                $embed = EmbedObject::create();
+                $embed->SourceURL = $this->EmbedSourceURL;
+                $embed->write();
+
+                $this->EmbedVideoID = $embed->ID;
+
+                // migrate legacy title and description
+                if (!$this->Title && $this->EmbedTitle) {
+                    $this->Title = $this->EmbedTitle;
+                }
+
+                if (!$this->Content && $this->EmbedDescription) {
+                    $this->Content = $this->EmbedDescription;
+                }
+            }
+        }
     }
 
     /**
@@ -76,11 +146,11 @@ class ElementOembed extends BaseElement
      */
     public function getSummary()
     {
-        if ($this->EmbedTitle) {
-            return DBField::create_field('HTMLText', $this->dbObject('EmbedTitle'))->Summary(20);
+        if ($this->Title) {
+            return DBField::create_field('HTMLText', $this->dbObject('Title'))->Summary(20);
         }
 
-        return DBField::create_field('HTMLText', '<p>External Content</p>')->Summary(20);
+        return DBField::create_field('HTMLText', 'Embeded Content')->Summary(20);
     }
 
     /**
