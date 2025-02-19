@@ -32,6 +32,7 @@ class ElementOembed extends BaseElement
      * @return array
      */
     private static $db = [
+        'Content' => 'HTMLText',
         'EmbedTitle' => 'Varchar(255)',
         'EmbedDescription' => 'HTMLText',
         'EmbedSourceURL' => 'Varchar(255)',
@@ -67,20 +68,52 @@ class ElementOembed extends BaseElement
 
             $fields->removeByName([
                 'EmbedVideoID',
-                'EmbedTitle',
             ]);
-
-            $fields->dataFieldByName('EmbedDescription')->setTitle('Description');
-            $fields->dataFieldByName('EmbedSourceURL')->setTitle('Legacy Source URL');
-
+            
             // Embed video
             $embedVideo = EmbedField::create('EmbedVideoID', 'Embed video');
 
             $fields->addFieldToTab(
                 'Root.Main',
                 $embedVideo,
-                'EmbedDescription'
+                'Content'
             );
+
+            if (Config::inst()->get(self::class, 'enable_migration')) {
+                $legacy_title = $fields->dataFieldByName('EmbedTitle')
+                    ->setTitle('Legacy Title')
+                    //->performReadonlyTransformation()
+                    ;
+                $legacy_source = $fields->dataFieldByName('EmbedSourceURL')
+                    ->setTitle('Legacy Source URL')
+                    //->performReadonlyTransformation()
+                    ;
+                $legacy_description = $fields->dataFieldByName('EmbedDescription')
+                    ->setTitle('Legacy Description')
+                    //->performReadonlyTransformation()
+                    ;
+
+                $fields->insertAfter(
+                    'Content',
+                    $legacy_description
+                );
+            
+                $fields->insertAfter(
+                    'Content',
+                    $legacy_source
+                );
+
+                $fields->insertAfter(
+                    'Content',
+                    $legacy_title
+                );
+            } else {
+                $fields->removeByName([
+                    'EmbedTitle',
+                    'EmbedDescription',
+                    'EmbedSourceURL',
+                ]);
+            }
         });
 
         return parent::getCMSFields();
@@ -101,6 +134,15 @@ class ElementOembed extends BaseElement
                 $embed->write();
 
                 $this->EmbedVideoID = $embed->ID;
+
+                // migrate legacy title and description
+                if (!$this->Title && $this->EmbedTitle) {
+                    $this->Title = $this->EmbedTitle;
+                }
+
+                if (!$this->Content && $this->EmbedDescription) {
+                    $this->Content = $this->EmbedDescription;
+                }
             }
         }
     }
