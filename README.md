@@ -1,5 +1,7 @@
 # Silverstripe Elemental Media Block
 
+[![Sponsors](https://img.shields.io/badge/Sponsor-Dynamic-ff69b4?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/dynamic)
+
 A content block to embed media from other websites via oEmbed
 
 [![CI](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml/badge.svg)](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml)
