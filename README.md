@@ -3,7 +3,7 @@
 A content block to embed media from other websites via oEmbed
 
 [![CI](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml/badge.svg)](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/dynamic/silverstripe-elemental-oembed/branch/master/graph/badge.svg)](https://codecov.io/gh/dynamic/silverstripe-elemental-oembed)
+[![Sponsors](https://img.shields.io/badge/Sponsor-Dynamic-ff69b4?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/dynamic)
 
 [![Latest Stable Version](https://poser.pugx.org/dynamic/silverstripe-elemental-oembed/v/stable)](https://packagist.org/packages/dynamic/silverstripe-elemental-oembed)
 [![Total Downloads](https://poser.pugx.org/dynamic/silverstripe-elemental-oembed/downloads)](https://packagist.org/packages/dynamic/silverstripe-elemental-oembed)
