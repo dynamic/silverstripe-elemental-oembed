@@ -12,7 +12,7 @@ A content block to embed media from other websites via oEmbed
 
 ## Requirements
 
-* SilverStripe ^6.0
+* silverstripe/cms: ^6.0
 * PHP ^8.3
 * dnadesign/silverstripe-elemental: ^6.0
 * fromholdio/silverstripe-embedfield: ^5.1
@@ -55,6 +55,7 @@ SilverStripe Elemental OEmbed 6.0 is compatible with SilverStripe 6. Key changes
 - Replaced linkable with fromholdio/silverstripe-embedfield ^5.1
 - Updated BuildTask signature for SS6 compatibility
 - No breaking changes to the API or templates
+
 ## Maintainers
 
 *  [Dynamic](http://www.dynamicagency.com) (<dev@dynamicagency.com>)
