@@ -12,8 +12,10 @@ A content block to embed media from other websites via oEmbed
 
 ## Requirements
 
-* dnadesign/silverstripe-elemental: ^4.8
-* dynamic/silverstripe-linkable: ^1.0
+* SilverStripe ^6.0
+* PHP ^8.3
+* dnadesign/silverstripe-elemental: ^6.0
+* fromholdio/silverstripe-embedfield: ^5.1
 
 ## Installation
 
@@ -43,3 +45,32 @@ See [Elemental modules by Dynamic](https://github.com/dynamic/silverstripe-eleme
 
 See [SilverStripe Elemental Configuration](https://github.com/dnadesign/silverstripe-elemental#configuration)
 
+## Upgrading from version 5
+
+SilverStripe Elemental OEmbed 6.0 is compatible with SilverStripe 6. Key changes:
+
+- Updated to SilverStripe CMS 6
+- Requires PHP 8.3 or higher
+- Updated to Elemental 6
+- Replaced linkable with fromholdio/silverstripe-embedfield ^5.1
+- Updated BuildTask signature for SS6 compatibility
+- No breaking changes to the API or templates
+## Maintainers
+
+*  [Dynamic](http://www.dynamicagency.com) (<dev@dynamicagency.com>)
+
+## Bugtracker
+
+Bugs are tracked in the issues section of this repository. Before submitting an issue please read over existing issues to ensure yours is unique.
+
+If the issue does look like a new bug:
+
+- Create a new issue
+- Describe the steps required to reproduce your issue, and the expected outcome. Unit tests, screenshots and screencasts can help here.
+- Describe your environment as detailed as possible: SilverStripe version, Browser, PHP version, Operating System, any installed SilverStripe modules.
+
+Please report security issues to the module maintainers directly. Please don't file security issues in the bugtracker.
+
+## Development and contribution
+
+If you would like to make contributions to the module please ensure you raise a pull request and discuss with the module maintainers.
