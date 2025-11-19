@@ -6,9 +6,9 @@ use DOMXPath;
 use DOMDocument;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\FieldType\DBField;
-use nathancox\EmbedField\Forms\EmbedField;
+use Fromholdio\EmbedField\Forms\EmbedField;
 use DNADesign\Elemental\Models\BaseElement;
-use nathancox\EmbedField\Model\EmbedObject;
+use Fromholdio\EmbedField\Model\EmbedObject;
 use SilverStripe\Core\Config\Config;
 
 class ElementOembed extends BaseElement

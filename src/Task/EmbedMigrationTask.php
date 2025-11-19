@@ -3,31 +3,23 @@
 namespace Dynamic\Elements\Oembed\Task;
 
 use SilverStripe\Dev\BuildTask;
+use SilverStripe\PolyExecution\PolyOutput;
 use SilverStripe\Versioned\Versioned;
+use Symfony\Component\Console\Input\InputInterface;
 use Dynamic\Elements\Oembed\Elements\ElementOembed;
 
 class EmbedMigrationTask extends BuildTask
 {
-     /**
-     * @var string
-     */
-    protected $title = 'Embed Migration Task';
+    protected string $title = 'Embed Migration Task';
 
-    /**
-     * @var string
-     */
-    protected $description = 'Migrate embed blocks from old gorricoe/linkable to nathancox/embedfield.';
+    protected static string $description = 'Migrate embed blocks from old gorricoe/linkable to nathancox/embedfield.';
 
     /**
      * @var string
      */
     private static string $segment = 'EmbedMigrationTask';
 
-    /**
-     * @param $request
-     * @return void
-     */
-    public function run($request): void
+    protected function execute(InputInterface $input, PolyOutput $output): int
     {
         $objects = ElementOembed::get();
 
@@ -36,5 +28,7 @@ class EmbedMigrationTask extends BuildTask
             $object->writeToStage(Versioned::DRAFT);
             $object->publishSingle();
         }
+
+        return 0;
     }
 }
