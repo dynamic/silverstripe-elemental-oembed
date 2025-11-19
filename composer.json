@@ -24,12 +24,13 @@
         }
     ],
     "require": {
-        "dnadesign/silverstripe-elemental": "^5.0",
-        "nathancox/embedfield": "^3.0",
-        "silverstripe/asset-admin": "^2.0"
+        "php": "^8.3",
+        "dnadesign/silverstripe-elemental": "^6.0",
+        "fromholdio/silverstripe-embedfield": "^5.1",
+        "silverstripe/asset-admin": "^3.0"
     },
     "require-dev": {
-        "silverstripe/recipe-testing": "^3"
+        "silverstripe/recipe-testing": "^4"
     },
     "repositories": [
         {
