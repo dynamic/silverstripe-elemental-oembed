@@ -24,7 +24,7 @@ class ElementOembed extends BaseElement
     /**
      * @var string
      */
-    private static $plural_name = 'Media Blocks';
+    private static $plural_name = 'Media Elements';
 
     /**
      * @var string
