@@ -5,5 +5,5 @@ en:
     PLURALS:
       one: 'A Media Element'
       other: '{count} Media Elements'
-    SINGULARNAME: Media Element
+    SINGULARNAME: Media
     EmbeddedObjectLabel: Content from oEmbed URL
