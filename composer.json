@@ -20,7 +20,7 @@
     "require": {
         "dnadesign/silverstripe-elemental": "^5.0",
         "dnadesign/silverstripe-embed": "dev-master",
-        "gorriecoe/silverstripe-htmltag": "dev-bugfix/depreciations as 1.1.0",
+        "gorriecoe/silverstripe-htmltag": "dev-bugfix/depreciations as dev-master",
         "silverstripe/asset-admin": "^2.0"
     },
     "require-dev": {
