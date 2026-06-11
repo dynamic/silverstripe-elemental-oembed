@@ -16,6 +16,16 @@ class ElementOembed extends BaseElement
     /**
      * @var string
      */
+    private static $singular_name = 'Media';
+
+    /**
+     * @var string
+     */
+    private static $plural_name = 'Media Elements';
+
+    /**
+     * @var string
+     */
     private static $icon = 'font-icon-block-media';
 
     /**
@@ -161,14 +171,6 @@ class ElementOembed extends BaseElement
         $blockSchema = parent::provideBlockSchema();
         $blockSchema['content'] = $this->getSummary();
         return $blockSchema;
-    }
-
-    /**
-     * @return string
-     */
-    public function getType()
-    {
-        return _t(__CLASS__ . '.BlockType', 'Media');
     }
 
     /**
