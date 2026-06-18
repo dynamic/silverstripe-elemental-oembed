@@ -44,17 +44,6 @@ See [Elemental modules by Dynamic](https://github.com/orgs/dynamic/repositories?
 
 See [SilverStripe Elemental Configuration](https://github.com/dnadesign/silverstripe-elemental#configuration)
 
-## Upgrading from version 5
-
-SilverStripe Elemental OEmbed 6.0 is compatible with SilverStripe 6. Key changes:
-
-- Updated to SilverStripe CMS 6
-- Requires PHP 8.3 or higher
-- Updated to Elemental 6
-- Replaced linkable with fromholdio/silverstripe-embedfield ^5.1
-- Updated BuildTask signature for SS6 compatibility
-- No breaking changes to the API or templates
-
 ## Maintainers
 
  *  [Dynamic](https://www.dynamicagency.com) (<dev@dynamicagency.com>)
