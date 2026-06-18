@@ -1,9 +1,8 @@
-# Silverstripe Elemental Media Block
+# Silverstripe Elemental OEmbed
 
 A content block to embed media from other websites via oEmbed
 
-[![CI](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml/badge.svg)](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml)
-[![Sponsors](https://img.shields.io/badge/Sponsor-Dynamic-ff69b4?logo=github-sponsors&logoColor=white)](https://github.com/sponsors/dynamic)
+[![CI](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml/badge.svg)](https://github.com/dynamic/silverstripe-elemental-oembed/actions/workflows/ci.yml) [![Sponsors](https://img.shields.io/badge/GitHub-Sponsors-ff69b4?logo=github)](https://github.com/sponsors/dynamic)
 
 [![Latest Stable Version](https://poser.pugx.org/dynamic/silverstripe-elemental-oembed/v/stable)](https://packagist.org/packages/dynamic/silverstripe-elemental-oembed)
 [![Total Downloads](https://poser.pugx.org/dynamic/silverstripe-elemental-oembed/downloads)](https://packagist.org/packages/dynamic/silverstripe-elemental-oembed)
@@ -12,10 +11,10 @@ A content block to embed media from other websites via oEmbed
 
 ## Requirements
 
-* silverstripe/cms: ^6.0
 * PHP ^8.3
 * dnadesign/silverstripe-elemental: ^6.0
 * fromholdio/silverstripe-embedfield: ^5.1
+* silverstripe/asset-admin: ^3.0
 
 ## Installation
 
@@ -23,23 +22,23 @@ A content block to embed media from other websites via oEmbed
 
 ## Usage
 
-Elemental oEmbed Block will add the following Element to your site:
+Elemental OEmbed Block will add the following Element to your site:
 
 * oEmbed (A block to embed media from other websites via oEmbed)
 
 ## Screen Shots
 
-#### Front End sample of a oEmbed Element
-The default templates are based off [Bootstrap 4](https://getbootstrap.com/) classes/styling
+#### Front End sample of an OEmbed Element
 
-![Front End sample of a oEmbed Element](./readme-images/oembed-block-sample.jpg)
+![Front End sample of an OEmbed Element](./readme-images/oembed-block-sample.jpg)
 
-#### CMS - oEmbed Main Tab
-![CMS - oEmbed Main Tab](./readme-images/oembed-block-cms.jpg)
+#### CMS - OEmbed Main Tab
+
+![CMS - OEmbed Main Tab](./readme-images/oembed-block-cms.jpg)
 
 ## Getting more elements
 
-See [Elemental modules by Dynamic](https://github.com/dynamic/silverstripe-elemental-blocks#getting-more-elements)
+See [Elemental modules by Dynamic](https://github.com/orgs/dynamic/repositories?q=elemental&type=all&language=&sort=)
 
 ## Configuration
 
@@ -58,7 +57,7 @@ SilverStripe Elemental OEmbed 6.0 is compatible with SilverStripe 6. Key changes
 
 ## Maintainers
 
-*  [Dynamic](http://www.dynamicagency.com) (<dev@dynamicagency.com>)
+ *  [Dynamic](https://www.dynamicagency.com) (<dev@dynamicagency.com>)
 
 ## Bugtracker
 
@@ -66,12 +65,16 @@ Bugs are tracked in the issues section of this repository. Before submitting an 
 
 If the issue does look like a new bug:
 
-- Create a new issue
-- Describe the steps required to reproduce your issue, and the expected outcome. Unit tests, screenshots and screencasts can help here.
-- Describe your environment as detailed as possible: SilverStripe version, Browser, PHP version, Operating System, any installed SilverStripe modules.
+ - Create a new issue
+ - Describe the steps required to reproduce your issue, and the expected outcome. Unit tests, screenshots and screencasts can help here.
+ - Describe your environment as detailed as possible: SilverStripe version, Browser, PHP version, Operating System, any installed SilverStripe modules.
 
-Please report security issues to the module maintainers directly. Please don't file security issues in the bugtracker.
+Please report security issues to the module maintainers directly. Please don'''t file security issues in the bugtracker.
 
 ## Development and contribution
 
 If you would like to make contributions to the module please ensure you raise a pull request and discuss with the module maintainers.
+
+## License
+
+See [License](LICENSE.md)
