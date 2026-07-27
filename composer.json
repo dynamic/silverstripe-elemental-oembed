@@ -32,12 +32,6 @@
     "require-dev": {
         "silverstripe/recipe-testing": "^4"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:jsirish/silverstripe-htmltag.git"
-        }
-    ],
     "minimum-stability": "dev",
     "prefer-stable": true,
     "autoload": {
