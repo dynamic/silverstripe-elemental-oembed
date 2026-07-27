@@ -12,7 +12,7 @@ class EmbedMigrationTask extends BuildTask
 {
     protected string $title = 'Embed Migration Task';
 
-    protected static string $description = 'Migrate embed blocks from old gorricoe/linkable to nathancox/embedfield.';
+    protected static string $description = 'Migrate embed blocks to fromholdio/silverstripe-embedfield.';
 
     /**
      * @var string
