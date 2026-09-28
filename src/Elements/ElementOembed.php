@@ -6,6 +6,7 @@ use DOMXPath;
 use DOMDocument;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\DataObject;
 use Fromholdio\EmbedField\Forms\EmbedField;
 use DNADesign\Elemental\Models\BaseElement;
 use Fromholdio\EmbedField\Model\EmbedObject;
@@ -136,10 +137,14 @@ class ElementOembed extends BaseElement
                 $embed = EmbedObject::create();
                 $embed->SourceURL = $this->EmbedSourceURL;
 
-                // Fetch the oEmbed data before writing. EmbedObject::validate() refreshes
-                // incidentally, but that only happens while DataObject validation is enabled
-                // - the migrated record must have Type/EmbedHTML/dimensions regardless.
-                $embed->doRefresh();
+                // Populate Type/EmbedHTML/dimensions from the source URL. EmbedObject::validate()
+                // calls doRefresh() for a new record, but DataObject::validateWrite() skips
+                // validation entirely when the global validation_enabled flag is off - refresh
+                // ourselves in that case so a migrated record is never written empty, and only in
+                // that case, so the provider is not asked for the same data twice per element.
+                if (!DataObject::config()->uninherited('validation_enabled')) {
+                    $embed->doRefresh();
+                }
                 $embed->write();
 
                 $this->EmbedVideoID = $embed->ID;
@@ -181,21 +186,25 @@ class ElementOembed extends BaseElement
     /**
      * isolate src from EmbedHTML for more control over iframe attributes
      *
-     * EmbedHTML is not a field of this element since the 5.x EmbedField refactor - it lives
-     * on the linked EmbedObject. A legacy value is still honoured first, for installs that
-     * re-declare the old EmbedHTML column through an extension.
+     * The iframe comes from the linked EmbedObject's EmbedHTML, which is where that data lives
+     * since the 5.x EmbedField refactor. A legacy EmbedHTML on this element is only consulted
+     * while no EmbedObject is linked, for installs that still declare the pre-5.x column: once a
+     * record has a relation, the relation is authoritative, so a stale legacy value can never
+     * shadow the embed an editor picked.
      *
      * @return string|null
      */
-    public function getEmbedURL(): ?string
+    public function getEmbedURL()
     {
-        $html = $this->EmbedHTML;
+        $html = null;
+        $embed = $this->EmbedVideo();
+
+        if ($embed && $embed->exists()) {
+            $html = $embed->EmbedHTML;
+        }
 
         if (!$html) {
-            $embed = $this->EmbedVideo();
-            if ($embed && $embed->exists()) {
-                $html = $embed->EmbedHTML;
-            }
+            $html = $this->EmbedHTML;
         }
 
         if (!$html) {

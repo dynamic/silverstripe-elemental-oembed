@@ -89,7 +89,8 @@ class ElementOembedTest extends SapphireTest
     }
 
     /**
-     *
+     * An element with no EmbedVideo relation has no iframe src to return, even with the legacy
+     * column declared.
      */
     public function testGetEmbedURLWithoutEmbedVideo()
     {
@@ -99,7 +100,7 @@ class ElementOembedTest extends SapphireTest
     }
 
     /**
-     *
+     * EmbedHTML that holds no iframe (a rich/link embed) yields no src rather than an error.
      */
     public function testGetEmbedURLWithoutIframe()
     {
@@ -116,7 +117,7 @@ class ElementOembedTest extends SapphireTest
     }
 
     /**
-     *
+     * A linked EmbedObject whose EmbedHTML is an empty string yields no src.
      */
     public function testGetEmbedURLEmptyEmbedHTML()
     {
