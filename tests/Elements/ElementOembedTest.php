@@ -3,6 +3,7 @@
 namespace Dynamic\Elements\Oembed\Tests;
 
 use Dynamic\Elements\Oembed\Elements\ElementOembed;
+use Fromholdio\EmbedField\Model\EmbedObject;
 use SilverStripe\Dev\SapphireTest;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\FieldType\DBField;
@@ -41,5 +42,93 @@ class ElementOembedTest extends SapphireTest
     {
         $object = $this->objFromFixture(ElementOembed::class, 'one');
         $this->assertEquals($object->getType(), 'Media');
+    }
+
+    /**
+     * Create an EmbedObject without touching the network: skipValidation keeps
+     * EmbedObject::validate() from calling doRefresh().
+     */
+    private function createEmbedObject(string $sourceURL, ?string $embedHTML): EmbedObject
+    {
+        $embed = EmbedObject::create();
+        $embed->SourceURL = $sourceURL;
+        $embed->EmbedHTML = $embedHTML;
+        $embed->write(false, false, false, false, true);
+        return $embed;
+    }
+
+    /**
+     * getEmbedURL() reads the iframe src off the linked EmbedObject, not a (removed)
+     * EmbedHTML column of its own.
+     */
+    public function testGetEmbedURLFromLinkedEmbedObject()
+    {
+        $embedHTML = '<iframe width="200" height="150"'
+            . ' src="https://www.youtube.com/embed/fQfWFNuhQls" frameborder="0" allowfullscreen></iframe>';
+        $embed = $this->createEmbedObject(
+            'https://www.youtube.com/watch?v=fQfWFNuhQls',
+            $embedHTML
+        );
+        $this->assertTrue($embed->exists());
+
+        $object = $this->objFromFixture(ElementOembed::class, 'one');
+        $object->EmbedVideoID = $embed->ID;
+        $object->write();
+
+        $this->assertSame(
+            'https://www.youtube.com/embed/fQfWFNuhQls',
+            $object->getEmbedURL()
+        );
+
+        // reloaded from the database, as the template renders it
+        $reloaded = ElementOembed::get()->byID($object->ID);
+        $this->assertSame(
+            'https://www.youtube.com/embed/fQfWFNuhQls',
+            $reloaded->getEmbedURL()
+        );
+    }
+
+    /**
+     *
+     */
+    public function testGetEmbedURLWithoutEmbedVideo()
+    {
+        $object = $this->objFromFixture(ElementOembed::class, 'one');
+        $this->assertFalse((bool)$object->EmbedVideoID);
+        $this->assertNull($object->getEmbedURL());
+    }
+
+    /**
+     *
+     */
+    public function testGetEmbedURLWithoutIframe()
+    {
+        $embed = $this->createEmbedObject(
+            'https://www.flickr.com/photos/dynamic/12345678/',
+            '<blockquote>An embeddable photo</blockquote>'
+        );
+
+        $object = $this->objFromFixture(ElementOembed::class, 'one');
+        $object->EmbedVideoID = $embed->ID;
+        $object->write();
+
+        $this->assertNull($object->getEmbedURL());
+    }
+
+    /**
+     *
+     */
+    public function testGetEmbedURLEmptyEmbedHTML()
+    {
+        $embed = $this->createEmbedObject(
+            'https://www.youtube.com/watch?v=fQfWFNuhQls',
+            ''
+        );
+
+        $object = $this->objFromFixture(ElementOembed::class, 'one');
+        $object->EmbedVideoID = $embed->ID;
+        $object->write();
+
+        $this->assertNull($object->getEmbedURL());
     }
 }

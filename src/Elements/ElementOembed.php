@@ -124,7 +124,7 @@ class ElementOembed extends BaseElement
     }
 
     /**
-     * @return string
+     * @return void
      */
     public function onBeforeWrite()
     {
@@ -135,6 +135,11 @@ class ElementOembed extends BaseElement
             if (!$this->EmbedVideoID && $this->EmbedSourceURL) {
                 $embed = EmbedObject::create();
                 $embed->SourceURL = $this->EmbedSourceURL;
+
+                // Fetch the oEmbed data before writing. EmbedObject::validate() refreshes
+                // incidentally, but that only happens while DataObject validation is enabled
+                // - the migrated record must have Type/EmbedHTML/dimensions regardless.
+                $embed->doRefresh();
                 $embed->write();
 
                 $this->EmbedVideoID = $embed->ID;
@@ -176,33 +181,46 @@ class ElementOembed extends BaseElement
     /**
      * isolate src from EmbedHTML for more control over iframe attributes
      *
-     * @return void
+     * EmbedHTML is not a field of this element since the 5.x EmbedField refactor - it lives
+     * on the linked EmbedObject. A legacy value is still honoured first, for installs that
+     * re-declare the old EmbedHTML column through an extension.
+     *
+     * @return string|null
      */
-    public function getEmbedURL()
+    public function getEmbedURL(): ?string
     {
-        if ($this->EmbedHTML) {
-            $html = $this->EmbedHTML;
+        $html = $this->EmbedHTML;
 
-            // Create a new DOM Document to hold our webpage structure
-            $doc = new DOMDocument();
-
-            // Load the HTML into the DOM Document
-            @$doc->loadHTML($html);
-
-            // Create a new XPath object
-            $xpath = new DOMXPath($doc);
-
-            // Query for the first iframe element
-            $iframe = $xpath->query("//iframe")->item(0);
-
-            if ($iframe) {
-                // Extract the src attribute value
-                if ($src = $iframe->getAttribute('src')) {
-                    return $src;
-                }
-            } else {
-                return null;
+        if (!$html) {
+            $embed = $this->EmbedVideo();
+            if ($embed && $embed->exists()) {
+                $html = $embed->EmbedHTML;
             }
         }
+
+        if (!$html) {
+            return null;
+        }
+
+        // Create a new DOM Document to hold our webpage structure
+        $doc = new DOMDocument();
+
+        // Load the HTML into the DOM Document
+        @$doc->loadHTML($html);
+
+        // Create a new XPath object
+        $xpath = new DOMXPath($doc);
+
+        // Query for the first iframe element
+        $iframe = $xpath->query("//iframe")->item(0);
+
+        if (!$iframe) {
+            return null;
+        }
+
+        // Extract the src attribute value
+        $src = $iframe->getAttribute('src');
+
+        return $src ? $src : null;
     }
 }
