@@ -140,11 +140,24 @@ class ElementOembed extends BaseElement
                 // Populate Type/EmbedHTML/dimensions from the source URL. EmbedObject::validate()
                 // calls doRefresh() for a new record, but DataObject::validateWrite() skips
                 // validation entirely when the global validation_enabled flag is off - refresh
-                // ourselves in that case so a migrated record is never written empty, and only in
-                // that case, so the provider is not asked for the same data twice per element.
+                // ourselves in that case only, so the provider is never asked for the same data
+                // twice per migrated element.
+                $linkEmbed = true;
                 if (!DataObject::config()->uninherited('validation_enabled')) {
                     $embed->doRefresh();
+
+                    // With validation off nothing throws when the provider lookup fails, and
+                    // doRefresh() leaves the record blank in that case (it clears SourceURL too).
+                    // Linking a blank EmbedObject would be permanent: this block only runs while
+                    // EmbedVideoID is empty, so the element would never be migrated again. Leave
+                    // it unlinked instead so a later write retries.
+                    $linkEmbed = !empty($embed->EmbedHTML);
                 }
+
+                if (!$linkEmbed) {
+                    return;
+                }
+
                 $embed->write();
 
                 $this->EmbedVideoID = $embed->ID;
@@ -187,23 +200,20 @@ class ElementOembed extends BaseElement
      * isolate src from EmbedHTML for more control over iframe attributes
      *
      * The iframe comes from the linked EmbedObject's EmbedHTML, which is where that data lives
-     * since the 5.x EmbedField refactor. A legacy EmbedHTML on this element is only consulted
-     * while no EmbedObject is linked, for installs that still declare the pre-5.x column: once a
-     * record has a relation, the relation is authoritative, so a stale legacy value can never
-     * shadow the embed an editor picked.
+     * since the 5.x EmbedField refactor. That relation is authoritative whenever one is linked,
+     * blank or not: a stale legacy EmbedHTML left over from a pre-5.x upgrade is only read while
+     * no EmbedObject is linked, so it can never shadow the embed an editor picked.
      *
      * @return string|null
      */
     public function getEmbedURL()
     {
-        $html = null;
         $embed = $this->EmbedVideo();
 
         if ($embed && $embed->exists()) {
             $html = $embed->EmbedHTML;
-        }
-
-        if (!$html) {
+        } else {
+            // pre-5.x column, still present on installs that upgraded without migrating
             $html = $this->EmbedHTML;
         }
 

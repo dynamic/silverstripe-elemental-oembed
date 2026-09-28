@@ -89,8 +89,7 @@ class ElementOembedTest extends SapphireTest
     }
 
     /**
-     * An element with no EmbedVideo relation has no iframe src to return, even with the legacy
-     * column declared.
+     * An element with no EmbedVideo relation and no legacy EmbedHTML has no iframe src to return.
      */
     public function testGetEmbedURLWithoutEmbedVideo()
     {
@@ -131,5 +130,52 @@ class ElementOembedTest extends SapphireTest
         $object->write();
 
         $this->assertNull($object->getEmbedURL());
+    }
+
+    /**
+     * With no EmbedObject linked, a legacy EmbedHTML (the pre-5.x column installs that upgraded
+     * without migrating still carry) is still rendered.
+     */
+    public function testGetEmbedURLFallsBackToLegacyEmbedHTML()
+    {
+        $object = ElementOembed::create();
+        $object->EmbedHTML = '<iframe src="https://www.youtube.com/embed/legacy"></iframe>';
+
+        $this->assertSame(
+            '<iframe src="https://www.youtube.com/embed/legacy"></iframe>',
+            (string)$object->EmbedHTML
+        );
+        $this->assertSame('https://www.youtube.com/embed/legacy', $object->getEmbedURL());
+    }
+
+    /**
+     * A linked EmbedObject is authoritative: a stale legacy EmbedHTML must not shadow the embed
+     * an editor picked, and an empty EmbedHTML on the relation must not fall back to it either.
+     */
+    public function testGetEmbedURLPrefersLinkedEmbedObjectOverLegacyEmbedHTML()
+    {
+        $embed = $this->createEmbedObject(
+            'https://vimeo.com/12345678',
+            '<iframe src="https://player.vimeo.com/video/12345678"></iframe>'
+        );
+
+        $object = $this->objFromFixture(ElementOembed::class, 'one');
+        $object->EmbedVideoID = $embed->ID;
+        $object->EmbedHTML = '<iframe src="https://www.youtube.com/embed/legacy"></iframe>';
+        $object->write();
+
+        $this->assertSame(
+            'https://player.vimeo.com/video/12345678',
+            $object->getEmbedURL()
+        );
+
+        // an empty relation does not resurrect the stale legacy value
+        $blank = $this->createEmbedObject('https://vimeo.com/87654321', '');
+        $other = $this->objFromFixture(ElementOembed::class, 'one');
+        $other->EmbedVideoID = $blank->ID;
+        $other->EmbedHTML = '<iframe src="https://www.youtube.com/embed/legacy"></iframe>';
+
+        $this->assertTrue($other->EmbedVideo()->exists());
+        $this->assertNull($other->getEmbedURL());
     }
 }
