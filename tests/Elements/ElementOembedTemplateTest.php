@@ -34,9 +34,14 @@ class ElementOembedTemplateTest extends SapphireTest
 
     /**
      * Guards the precondition the empty-iframe bug is reported against: an element with no
-     * linked EmbedObject has no embed URL.
+     * linked EmbedObject renders with no embed URL.
+     *
+     * Scope note: on the current default branch `getEmbedURL()` reads a field that does not
+     * exist on this element, so it returns null even when an EmbedObject *is* linked. This
+     * therefore only pins the "no embed available" precondition, not the reason the URL is
+     * missing; the linked-EmbedObject case is covered by the getEmbedURL() work in PR #44.
      */
-    public function testGetEmbedURLIsNullWithoutLinkedEmbedObject(): void
+    public function testGetEmbedURLIsNullForElementWithoutEmbedObject(): void
     {
         $element = $this->objFromFixture(ElementOembed::class, 'one');
 
