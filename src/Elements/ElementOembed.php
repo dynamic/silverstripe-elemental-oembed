@@ -150,7 +150,8 @@ class ElementOembed extends BaseElement
                     // doRefresh() leaves the record blank in that case (it clears SourceURL too).
                     // Linking a blank EmbedObject would be permanent: this block only runs while
                     // EmbedVideoID is empty, so the element would never be migrated again. Leave
-                    // it unlinked instead so a later write retries.
+                    // it unlinked instead so a later write retries (the legacy title and
+                    // description migration below is deferred with it).
                     $linkEmbed = !empty($embed->EmbedHTML);
                 }
 
@@ -200,9 +201,9 @@ class ElementOembed extends BaseElement
      * isolate src from EmbedHTML for more control over iframe attributes
      *
      * The iframe comes from the linked EmbedObject's EmbedHTML, which is where that data lives
-     * since the 5.x EmbedField refactor. That relation is authoritative whenever one is linked,
-     * blank or not: a stale legacy EmbedHTML left over from a pre-5.x upgrade is only read while
-     * no EmbedObject is linked, so it can never shadow the embed an editor picked.
+     * since the 5.x EmbedField refactor. An element with no linked EmbedObject has no iframe;
+     * data left in the legacy columns is moved onto an EmbedObject by the `enable_migration`
+     * step in onBeforeWrite(), not read here.
      *
      * @return string|null
      */
@@ -210,12 +211,11 @@ class ElementOembed extends BaseElement
     {
         $embed = $this->EmbedVideo();
 
-        if ($embed && $embed->exists()) {
-            $html = $embed->EmbedHTML;
-        } else {
-            // pre-5.x column, still present on installs that upgraded without migrating
-            $html = $this->EmbedHTML;
+        if (!$embed || !$embed->exists()) {
+            return null;
         }
+
+        $html = $embed->EmbedHTML;
 
         if (!$html) {
             return null;
