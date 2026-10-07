@@ -6,6 +6,7 @@ use DOMXPath;
 use DOMDocument;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\ORM\DataObject;
 use Fromholdio\EmbedField\Forms\EmbedField;
 use DNADesign\Elemental\Models\BaseElement;
 use Fromholdio\EmbedField\Model\EmbedObject;
@@ -124,7 +125,7 @@ class ElementOembed extends BaseElement
     }
 
     /**
-     * @return string
+     * @return void
      */
     public function onBeforeWrite()
     {
@@ -135,6 +136,29 @@ class ElementOembed extends BaseElement
             if (!$this->EmbedVideoID && $this->EmbedSourceURL) {
                 $embed = EmbedObject::create();
                 $embed->SourceURL = $this->EmbedSourceURL;
+
+                // Populate Type/EmbedHTML/dimensions from the source URL. EmbedObject::validate()
+                // calls doRefresh() for a new record, but DataObject::validateWrite() skips
+                // validation entirely when the global validation_enabled flag is off - refresh
+                // ourselves in that case only, so the provider is never asked for the same data
+                // twice per migrated element.
+                $linkEmbed = true;
+                if (!DataObject::config()->uninherited('validation_enabled')) {
+                    $embed->doRefresh();
+
+                    // With validation off nothing throws when the provider lookup fails, and
+                    // doRefresh() leaves the record blank in that case (it clears SourceURL too).
+                    // Linking a blank EmbedObject would be permanent: this block only runs while
+                    // EmbedVideoID is empty, so the element would never be migrated again. Leave
+                    // it unlinked instead so a later write retries (the legacy title and
+                    // description migration below is deferred with it).
+                    $linkEmbed = !empty($embed->EmbedHTML);
+                }
+
+                if (!$linkEmbed) {
+                    return;
+                }
+
                 $embed->write();
 
                 $this->EmbedVideoID = $embed->ID;
@@ -176,33 +200,46 @@ class ElementOembed extends BaseElement
     /**
      * isolate src from EmbedHTML for more control over iframe attributes
      *
-     * @return void
+     * The iframe comes from the linked EmbedObject's EmbedHTML, which is where that data lives
+     * since the 5.x EmbedField refactor. An element with no linked EmbedObject has no iframe;
+     * data left in the legacy columns is moved onto an EmbedObject by the `enable_migration`
+     * step in onBeforeWrite(), not read here.
+     *
+     * @return string|null
      */
     public function getEmbedURL()
     {
-        if ($this->EmbedHTML) {
-            $html = $this->EmbedHTML;
+        $embed = $this->EmbedVideo();
 
-            // Create a new DOM Document to hold our webpage structure
-            $doc = new DOMDocument();
-
-            // Load the HTML into the DOM Document
-            @$doc->loadHTML($html);
-
-            // Create a new XPath object
-            $xpath = new DOMXPath($doc);
-
-            // Query for the first iframe element
-            $iframe = $xpath->query("//iframe")->item(0);
-
-            if ($iframe) {
-                // Extract the src attribute value
-                if ($src = $iframe->getAttribute('src')) {
-                    return $src;
-                }
-            } else {
-                return null;
-            }
+        if (!$embed || !$embed->exists()) {
+            return null;
         }
+
+        $html = $embed->EmbedHTML;
+
+        if (!$html) {
+            return null;
+        }
+
+        // Create a new DOM Document to hold our webpage structure
+        $doc = new DOMDocument();
+
+        // Load the HTML into the DOM Document
+        @$doc->loadHTML($html);
+
+        // Create a new XPath object
+        $xpath = new DOMXPath($doc);
+
+        // Query for the first iframe element
+        $iframe = $xpath->query("//iframe")->item(0);
+
+        if (!$iframe) {
+            return null;
+        }
+
+        // Extract the src attribute value
+        $src = $iframe->getAttribute('src');
+
+        return $src ? $src : null;
     }
 }
