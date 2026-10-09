@@ -176,7 +176,10 @@ class ElementOembed extends BaseElement
     /**
      * isolate src from EmbedHTML for more control over iframe attributes
      *
-     * @return void
+     * Only an http(s) URL or a protocol-relative URL is returned; any other src is dropped
+     * (see normaliseEmbedSrc()).
+     *
+     * @return string|null
      */
     public function getEmbedURL()
     {
@@ -197,12 +200,40 @@ class ElementOembed extends BaseElement
 
             if ($iframe) {
                 // Extract the src attribute value
-                if ($src = $iframe->getAttribute('src')) {
-                    return $src;
-                }
-            } else {
-                return null;
+                return static::normaliseEmbedSrc($iframe->getAttribute('src')) ?: null;
             }
         }
+
+        return null;
+    }
+
+    /**
+     * Returns the src as a browser resolves it, or null unless that is an http(s) URL with
+     * a host or a protocol-relative URL.
+     *
+     * The src comes from provider-supplied markup and is rendered in an unsandboxed iframe, so
+     * a javascript:, data:, vbscript: or file: value would run in the site origin. Leading and
+     * trailing control characters and spaces are trimmed and tabs and newlines removed before
+     * the scheme is read, as the URL parser does ("java\tscript:"). The returned string is the
+     * one the check approved, so callers must use it rather than the original value. Entities
+     * need no handling: the value comes from a parsed attribute.
+     */
+    public static function normaliseEmbedSrc(string $src): ?string
+    {
+        $candidate = str_replace(["\t", "\n", "\r"], '', trim($src, "\x00..\x20"));
+        if ($candidate === '') {
+            return null;
+        }
+
+        $protocolRelative = str_starts_with($candidate, '//');
+        $parts = parse_url($protocolRelative ? 'https:' . $candidate : $candidate);
+        if ($parts === false || empty($parts['host'])) {
+            return null;
+        }
+        if (!$protocolRelative && !in_array(strtolower($parts['scheme'] ?? ''), ['http', 'https'], true)) {
+            return null;
+        }
+
+        return $candidate;
     }
 }
