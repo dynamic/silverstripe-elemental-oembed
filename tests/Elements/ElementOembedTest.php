@@ -96,6 +96,20 @@ class ElementOembedTest extends SapphireTest
         $this->assertNull($object->getEmbedURL());
     }
 
+    /**
+     * A script-capable iframe src in the provider markup never reaches the output; the
+     * template renders no player.
+     */
+    public function testNoPlayerRenderedForScriptSchemeSrc()
+    {
+        $object = $this->createElementWithEmbedHtml('<iframe src="javascript://%0aalert(document.domain)//"></iframe>');
+
+        $output = (string) $object->renderWith('Dynamic\\Elements\\Oembed\\Elements\\ElementOembed');
+
+        $this->assertStringNotContainsString('<iframe', $output);
+        $this->assertStringNotContainsString('javascript', $output);
+    }
+
     public function testTemplateEscapesTheSrcAttribute()
     {
         $object = $this->createElementWithEmbedHtml(
