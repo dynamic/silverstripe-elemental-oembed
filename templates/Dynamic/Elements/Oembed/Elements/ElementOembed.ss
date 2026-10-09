@@ -4,7 +4,7 @@
     <div class="card mb-3">
         <% if $EmbedURL %>
             <div class="ratio ratio-16x9">
-                <iframe class="card-img-top" src="$EmbedURL" title="$EmbedTitle.ATT" allowfullscreen></iframe>
+                <iframe class="card-img-top" src="$EmbedURL.ATT" title="$EmbedTitle.ATT" allowfullscreen></iframe>
             </div>
         <% end_if %>
         <div class="card-body">

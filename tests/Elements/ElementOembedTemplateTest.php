@@ -3,6 +3,7 @@
 namespace Dynamic\Elements\Oembed\Tests;
 
 use Dynamic\Elements\Oembed\Elements\ElementOembed;
+use Fromholdio\EmbedField\Model\EmbedObject;
 use SilverStripe\Dev\SapphireTest;
 
 /**
@@ -102,5 +103,26 @@ class ElementOembedTemplateTest extends SapphireTest
         $this->assertStringContainsString('<iframe', $output);
         $this->assertStringContainsString('src="' . self::EMBED_URL . '"', $output);
         $this->assertStringContainsString('card-img-top', $output);
+    }
+
+    /**
+     * A script-capable iframe src in the provider markup never reaches the output; the
+     * template falls back to its empty state.
+     */
+    public function testNoPlayerRenderedForScriptSchemeSrc(): void
+    {
+        $embed = EmbedObject::create();
+        $embed->SourceURL = 'https://www.example.com/watch?v=1';
+        $embed->EmbedHTML = '<iframe src="javascript://%0aalert(document.domain)//"></iframe>';
+        $embed->write(false, false, false, false, true);
+
+        $element = $this->objFromFixture(ElementOembed::class, 'one');
+        $element->EmbedVideoID = $embed->ID;
+        $element->write();
+
+        $output = $element->forTemplate();
+
+        $this->assertStringNotContainsString('<iframe', $output);
+        $this->assertStringNotContainsString('javascript', $output);
     }
 }
