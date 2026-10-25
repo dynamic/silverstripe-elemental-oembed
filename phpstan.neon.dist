@@ -3,12 +3,3 @@ parameters:
   treatPhpDocTypesAsCertain: false
   paths:
     - src
-  ignoreErrors:
-    # A pre-existing silverstan finding in src/, suppressed so that enabling PHPStan in
-    # CI stays a config-only change with no behaviour risk. Fix the code and remove this
-    # entry in the PR that closes dynamic/silverstripe-elemental-oembed#51.
-    -
-      message: '#^Type array of configuration property Dynamic\\Elements\\Oembed\\Elements\\ElementOembed::\$inline_editable is not the same as type bool of overridden configuration property DNADesign\\Elemental\\Models\\BaseElement::\$inline_editable\.$#'
-      identifier: silverstan.configurationProperty.invalid
-      count: 1
-      path: src/Elements/ElementOembed.php
