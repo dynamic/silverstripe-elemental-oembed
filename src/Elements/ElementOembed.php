@@ -54,7 +54,7 @@ class ElementOembed extends BaseElement
     ];
 
     /**
-     * @var array
+     * @var bool
      */
     private static $inline_editable = false;
 
